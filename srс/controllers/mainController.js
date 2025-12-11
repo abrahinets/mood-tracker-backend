@@ -1,3 +1,3 @@
-export const == getHomePage() => {
-    return "Контент головної сторінки";
+export const getHomePage = () => {
+    return "HomePage";
 }

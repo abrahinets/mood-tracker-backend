@@ -1,3 +1,3 @@
-export const == logger(message) => {
+export const logger = (message) => {
     console.log("[LOG]:", message);
 }

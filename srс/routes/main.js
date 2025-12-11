@@ -1,3 +1,3 @@
-export const == mainRoute(req, res) => {
-    res.end("Головний маршрут");
+export const mainRoute = (req, res) => {
+    res.end("Main route");
 }

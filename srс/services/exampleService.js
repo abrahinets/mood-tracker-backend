@@ -1,3 +1,3 @@
-export const == calculateStuff(a, b) => {
+export const calculateStuff = (a, b) => {
     return a + b;
 }
