@@ -1,0 +1,35 @@
+{
+  "name": "mood-tracker-backend",
+  "version": "1.0.0",
+  "description": "Backend for mood tracking app",
+  "keywords": ["mood", "tracker", "backend", "node", "express"],
+  "homepage": "https://github.com/abrahinets/mood-tracker-backend#readme",
+  "bugs": {
+    "url": "https://github.com/abrahinets/mood-tracker-backend/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abrahinets/mood-tracker-backend.git"
+  },
+  "license": "MIT",
+  "author": "Artem Brahinets",
+  "type": "commonjs",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^4.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.0",
+    "mongoose": "^8.0.0",
+    "helmet": "^7.0.0",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
+
