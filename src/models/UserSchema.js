@@ -29,7 +29,6 @@ const UserSchema = new mongoose.Schema(
     }
 );
 
-// 🔥 КАСКАДНЕ ВИДАЛЕННЯ MOODS ПРИ ВИДАЛЕННІ USER
 UserSchema.pre('findOneAndDelete', async function (next) {
     const userId = this.getQuery()._id;
     await Mood.deleteMany({ user: userId });
