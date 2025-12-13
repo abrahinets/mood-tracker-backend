@@ -1,8 +1,12 @@
-// src/models/mood.js
 import mongoose from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
 
-const MoodSchema = new mongoose.Schema(
+const moodSchema = new mongoose.Schema(
     {
+        _id: {
+            type: String,
+            default: () => uuidv4(),
+        },
         mood: {
             type: String,
             required: true,
@@ -14,26 +18,27 @@ const MoodSchema = new mongoose.Schema(
                 'excited',
                 'tired',
                 'stressed',
-                'calm'
-            ]
+                'calm',
+            ],
         },
         note: {
             type: String,
-            default: ''
+            default: '',
         },
         user: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: String,
             ref: 'User',
-            required: true
-        }
+            required: true,
+        },
     },
     {
-        timestamps: true
+        timestamps: true,
+        _id: false,
     }
 );
 
-MoodSchema.index({ user: 1, createdAt: -1 });
+moodSchema.index({ user: 1, createdAt: -1 });
 
-const Mood = mongoose.model('Mood', MoodSchema);
+const Mood = mongoose.model('Mood', moodSchema);
 
 export default Mood;

@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import 'dotenv/config';
 
 export const connectDB = async () => {
     try {
@@ -12,3 +11,4 @@ export const connectDB = async () => {
         process.exit(1);
     }
 };
+
