@@ -12,7 +12,30 @@ import {
 
 const router = Router();
 
+/**
+ * @openapi
+ * /users/register:
+ *   post:
+ *     summary: Register new user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [username, email, password]
+ *     responses:
+ *       201:
+ *         description: User registered
+ */
 router.post('/register', register);
+
+/**
+ * @openapi
+ * /users/login:
+ *   post:
+ *     summary: Login user
+ */
 router.post('/login', login);
 
 router.get('/me', auth, getMe);

@@ -1,13 +1,15 @@
 import User from '../models/UserSchema.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { RequestError } from '../errors/RequestError.js';
+import { NotFoundError } from '../errors/NotFoundError.js';
 
 const generateToken = (id) =>
     jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
 export const register = async ({ username, email, password }) => {
     if (!username || !email || !password) {
-        throw new Error('All fields are required');
+        throw new RequestError('All fields are required');
     }
 
     const existingUser = await User.findOne({
@@ -15,7 +17,7 @@ export const register = async ({ username, email, password }) => {
     });
 
     if (existingUser) {
-        throw new Error('User already exists');
+        throw new RequestError('User already exists');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -34,17 +36,17 @@ export const register = async ({ username, email, password }) => {
 
 export const login = async ({ email, password }) => {
     if (!email || !password) {
-        throw new Error('Email and password are required');
+        throw new RequestError('Email and password are required');
     }
 
     const user = await User.findOne({ email });
     if (!user) {
-        throw new Error('Invalid credentials');
+        throw new RequestError('Invalid credentials');
     }
 
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
-        throw new Error('Invalid credentials');
+        throw new RequestError('Invalid credentials');
     }
 
     return {
@@ -54,11 +56,25 @@ export const login = async ({ email, password }) => {
 };
 
 export const getById = async (id) => {
-    return User.findById(id).select('-password');
+    const user = await User.findById(id).select('-password').lean();
+    if (!user) {
+        throw new NotFoundError('User not found');
+    }
+    return user;
 };
 
-export const getAll = async () => {
-    return User.find().select('-password').sort({ createdAt: -1 });
+export const getAll = async ({ offset = 0, limit = 20 } = {}) => {
+    const [users, count] = await Promise.all([
+        User.find()
+            .select('-password')
+            .sort({ createdAt: -1 })
+            .skip(offset)
+            .limit(limit)
+            .lean(),
+        User.countDocuments(),
+    ]);
+
+    return { users, count };
 };
 
 export const update = async (id, data) => {
@@ -66,12 +82,24 @@ export const update = async (id, data) => {
         data.password = await bcrypt.hash(data.password, 10);
     }
 
-    return User.findByIdAndUpdate(id, data, {
+    const user = await User.findByIdAndUpdate(id, data, {
         new: true,
         runValidators: true,
-    }).select('-password');
+    })
+        .select('-password')
+        .lean();
+
+    if (!user) {
+        throw new NotFoundError('User not found');
+    }
+
+    return user;
 };
 
 export const remove = async (id) => {
-    return User.findByIdAndDelete(id);
+    const user = await User.findByIdAndDelete(id).lean();
+    if (!user) {
+        throw new NotFoundError('User not found');
+    }
+    return user;
 };
