@@ -1,7 +1,16 @@
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import swaggerUi from 'swagger-ui-express';
+
+import { connectDB } from './connectDb.js';
+import { swaggerSpec } from './swagger.js';
+import indexRouter from './routes/index.js';
+import usersRouter from './routes/users.js';
+import moodsRouter from './routes/moods.js';
+import { errorMiddleware } from './middleware/errorMiddleware.js';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -11,10 +20,16 @@ app.use(helmet());
 app.use(morgan('dev'));
 app.use(express.json());
 
-app.get('/', (req, res) => {
-    res.send('Mood Tracker Backend is running!');
-});
+await connectDB();
+
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+app.use('/', indexRouter);
+app.use('/api/v1/users', usersRouter);
+app.use('/api/v1/moods', moodsRouter);
+
+app.use(errorMiddleware);
 
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server running on http://localhost:${PORT}`);
 });
