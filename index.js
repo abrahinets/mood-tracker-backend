@@ -6,8 +6,7 @@ import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
 
 import { connectDB } from './connectDb.js';
-import { swaggerSpec } from './swagger.js';
-import indexRouter from './routes/index.js';
+import { swaggerSpec } from './src/swagger/swagger.js';
 import usersRouter from './routes/users.js';
 import moodsRouter from './routes/moods.js';
 import { errorMiddleware } from './middleware/errorMiddleware.js';
@@ -22,9 +21,8 @@ app.use(express.json());
 
 await connectDB();
 
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-app.use('/', indexRouter);
 app.use('/api/v1/users', usersRouter);
 app.use('/api/v1/moods', moodsRouter);
 
