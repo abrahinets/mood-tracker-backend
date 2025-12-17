@@ -1,59 +1,34 @@
 import * as moodsService from '../services/moodsService.js';
 
 export const createMood = async (req, res) => {
-    try {
-        const mood = await moodsService.createMood({
-            ...req.body,
-            user: req.user.id,
-        });
-
-        res.status(201).json(mood);
-    } catch (e) {
-        res.status(400).json({ error: e.message });
-    }
+    const mood = await moodsService.create({
+        userId: req.user.id,
+        ...req.body,
+    });
+    res.status(201).json(mood);
 };
 
-export const getMoods = async (req, res) => {
-    try {
-        const moods = await moodsService.getMoods(req.user.id);
-        res.json(moods);
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
+export const getMyMoods = async (req, res) => {
+    const moods = await moodsService.getByUserId(req.user.id);
+    res.json(moods);
+};
+
+export const getAllMoods = async (req, res) => {
+    const moods = await moodsService.getAll();
+    res.json(moods);
 };
 
 export const getMoodById = async (req, res) => {
-    try {
-        const mood = await moodsService.getMoodById(
-            req.params.id,
-            req.user.id
-        );
-
-        res.json(mood);
-    } catch (e) {
-        res.status(404).json({ error: e.message });
-    }
+    const mood = await moodsService.getById(req.params.id, req.user);
+    res.json(mood);
 };
 
 export const updateMood = async (req, res) => {
-    try {
-        const mood = await moodsService.updateMood(
-            req.params.id,
-            req.user.id,
-            req.body
-        );
-
-        res.json(mood);
-    } catch (e) {
-        res.status(400).json({ error: e.message });
-    }
+    const mood = await moodsService.update(req.params.id, req.user, req.body);
+    res.json(mood);
 };
 
 export const deleteMood = async (req, res) => {
-    try {
-        await moodsService.deleteMood(req.params.id, req.user.id);
-        res.json({ message: 'Mood deleted successfully' });
-    } catch (e) {
-        res.status(404).json({ error: e.message });
-    }
+    await moodsService.remove(req.params.id);
+    res.status(204).send();
 };

@@ -1,11 +1,10 @@
 import User from '../models/UserSchema.js';
-import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { RequestError } from '../errors/RequestError.js';
 import { NotFoundError } from '../errors/NotFoundError.js';
 
-const generateToken = (id) =>
-    jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+const generateToken = (id, role) =>
+    jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
 export const register = async ({ username, email, password }) => {
     if (!username || !email || !password) {
@@ -20,17 +19,17 @@ export const register = async ({ username, email, password }) => {
         throw new RequestError('User already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     const user = await User.create({
         username,
         email,
-        password: hashedPassword,
+        password,
+        role: 'user',
     });
 
     return {
         userId: user._id,
-        token: generateToken(user._id),
+        role: user.role,
+        token: generateToken(user._id, user.role),
     };
 };
 
@@ -44,14 +43,15 @@ export const login = async ({ email, password }) => {
         throw new RequestError('Invalid credentials');
     }
 
-    const match = await bcrypt.compare(password, user.password);
+    const match = await user.comparePassword(password);
     if (!match) {
         throw new RequestError('Invalid credentials');
     }
 
     return {
         userId: user._id,
-        token: generateToken(user._id),
+        role: user.role,
+        token: generateToken(user._id, user.role),
     };
 };
 
@@ -78,8 +78,8 @@ export const getAll = async ({ offset = 0, limit = 20 } = {}) => {
 };
 
 export const update = async (id, data) => {
-    if (data.password) {
-        data.password = await bcrypt.hash(data.password, 10);
+    if (data.role && !['user', 'customer', 'admin'].includes(data.role)) {
+        throw new RequestError('Invalid role');
     }
 
     const user = await User.findByIdAndUpdate(id, data, {

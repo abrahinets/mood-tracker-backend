@@ -5,8 +5,9 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
 
-import { connectDB } from './connectDb.js';
+import { connectDatabase } from './connectDatabase.js';
 import { swaggerSpec } from './src/swagger/swagger.js';
+import rootRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
 import moodsRouter from './routes/moods.js';
 import { errorMiddleware } from './middleware/errorMiddleware.js';
@@ -19,10 +20,11 @@ app.use(helmet());
 app.use(morgan('dev'));
 app.use(express.json());
 
-await connectDB();
+await connectDatabase();
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+app.use('/', rootRouter);
 app.use('/api/v1/users', usersRouter);
 app.use('/api/v1/moods', moodsRouter);
 
