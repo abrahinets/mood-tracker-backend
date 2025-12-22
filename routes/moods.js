@@ -12,7 +12,7 @@ import {
 
 const router = Router();
 
-router.post('/', auth, authorizeRoles('user', 'customer', 'admin'), createMood);
+router.post('/', auth, authorizeRoles('customer', 'admin'), createMood);
 
 router.get('/me', auth, getMyMoods);
 

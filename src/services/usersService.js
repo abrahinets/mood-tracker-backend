@@ -23,7 +23,7 @@ export const register = async ({ username, email, password }) => {
         username,
         email,
         password,
-        role: 'user',
+        role: 'customer',
     });
 
     return {
@@ -78,7 +78,7 @@ export const getAll = async ({ offset = 0, limit = 20 } = {}) => {
 };
 
 export const update = async (id, data) => {
-    if (data.role && !['user', 'customer', 'admin'].includes(data.role)) {
+    if (data.role && !['customer', 'admin'].includes(data.role)) {
         throw new RequestError('Invalid role');
     }
 
@@ -103,3 +103,4 @@ export const remove = async (id) => {
     }
     return user;
 };
+
