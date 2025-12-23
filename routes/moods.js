@@ -1,8 +1,10 @@
 import { Router } from 'express';
 import { auth } from '../middleware/auth.js';
+import { authorizeRoles } from '../middleware/roles.js';
 import {
     createMood,
-    getMoods,
+    getMyMoods,
+    getAllMoods,
     getMoodById,
     updateMood,
     deleteMood,
@@ -10,12 +12,16 @@ import {
 
 const router = Router();
 
-router.use(auth);
+router.post('/', auth, authorizeRoles('customer', 'admin'), createMood);
 
-router.post('/', createMood);
-router.get('/', getMoods);
-router.get('/:id', getMoodById);
-router.put('/:id', updateMood);
-router.delete('/:id', deleteMood);
+router.get('/me', auth, getMyMoods);
+
+router.get('/', auth, authorizeRoles('admin'), getAllMoods);
+
+router.get('/:id', auth, getMoodById);
+
+router.put('/:id', auth, updateMood);
+
+router.delete('/:id', auth, authorizeRoles('admin'), deleteMood);
 
 export default router;

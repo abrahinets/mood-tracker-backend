@@ -1,19 +1,18 @@
 import mongoose from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import Mood from './MoodSchema.js';
+import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema(
     {
         _id: {
             type: String,
-            default: () => uuidv4(),
+            default: uuidv4,
         },
         username: {
             type: String,
             required: true,
             unique: true,
             trim: true,
-            minlength: 3,
         },
         email: {
             type: String,
@@ -27,6 +26,11 @@ const userSchema = new mongoose.Schema(
             required: true,
             minlength: 6,
         },
+        role: {
+            type: String,
+            enum: ['customer', 'admin'],
+            default: 'customer',
+        },
     },
     {
         timestamps: true,
@@ -34,12 +38,16 @@ const userSchema = new mongoose.Schema(
     }
 );
 
-userSchema.pre('findOneAndDelete', async function (next) {
-    const userId = this.getQuery()._id;
-    await Mood.deleteMany({ user: userId });
+userSchema.pre('save', async function (next) {
+    if (!this.isModified('password')) return next();
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
     next();
 });
 
-const User = mongoose.model('User', userSchema);
+userSchema.methods.comparePassword = function (plain) {
+    return bcrypt.compare(plain, this.password);
+};
 
+const User = mongoose.model('User', userSchema);
 export default User;

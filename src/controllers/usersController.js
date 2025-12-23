@@ -53,11 +53,11 @@ export const getUserById = async (req, res) => {
 
 export const updateUser = async (req, res) => {
     try {
-        if (req.params.id !== req.user.id) {
-            return res.status(403).json({ error: 'Access denied' });
+        if (req.user.role !== 'admin') {
+            delete req.body.role;
         }
 
-        const user = await usersService.update(req.user.id, req.body);
+        const user = await usersService.update(req.params.id, req.body);
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -70,11 +70,7 @@ export const updateUser = async (req, res) => {
 
 export const deleteUser = async (req, res) => {
     try {
-        if (req.params.id !== req.user.id) {
-            return res.status(403).json({ error: 'Access denied' });
-        }
-
-        await usersService.remove(req.user.id);
+        await usersService.remove(req.params.id);
         res.json({ message: 'User deleted successfully' });
     } catch (e) {
         res.status(500).json({ error: e.message });

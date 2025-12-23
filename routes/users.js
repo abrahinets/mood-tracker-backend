@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { auth } from '../middleware/auth.js';
+import { authorizeRoles, allowSelfOrAdmin } from '../middleware/roles.js';
 import {
     register,
     login,
@@ -12,36 +13,17 @@ import {
 
 const router = Router();
 
-/**
- * @openapi
- * /users/register:
- *   post:
- *     summary: Register new user
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [username, email, password]
- *     responses:
- *       201:
- *         description: User registered
- */
 router.post('/register', register);
-
-/**
- * @openapi
- * /users/login:
- *   post:
- *     summary: Login user
- */
 router.post('/login', login);
 
 router.get('/me', auth, getMe);
-router.get('/', auth, getUsers);
-router.get('/:id', auth, getUserById);
-router.put('/:id', auth, updateUser);
-router.delete('/:id', auth, deleteUser);
+
+router.get('/', auth, authorizeRoles('admin'), getUsers);
+
+router.get('/:id', auth, allowSelfOrAdmin('id'), getUserById);
+
+router.put('/:id', auth, allowSelfOrAdmin('id'), updateUser);
+
+router.delete('/:id', auth, authorizeRoles('admin'), deleteUser);
 
 export default router;
